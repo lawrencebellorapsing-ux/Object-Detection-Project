@@ -1,17 +1,28 @@
-import streamlit as st
+mport streamlit as st
 import cv2
-import numpy as np
-from PIL import Image
+from ultralytics import YOLO
 
-st.title("Object Detection Project")
+st.title("Real-Time Object Detection")
 
-uploaded_file = st.file_uploader("Upload an Image", type=["jpg", "png", "jpeg"])
+model = YOLO("yolov8n.pt")
 
-if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    img_array = np.array(image)
+camera = cv2.VideoCapture(0)
 
-    gray = cv2.cvtColor(img_array, cv2.COLOR_BGR2GRAY)
+run = st.checkbox("Start Camera")
 
-    st.image(image, caption="Original Image")
-    st.image(gray, caption="Processed Image")
+frame_window = st.image([])
+
+while run:
+    success, frame = camera.read()
+
+    if not success:
+        st.write("Camera not working")
+        break
+
+    results = model(frame)
+
+    annotated_frame = results[0].plot()
+
+    frame_window.image(annotated_frame, channels="BGR")
+
+camera.release()
