@@ -2,7 +2,7 @@ import streamlit as st
 import cv2
 from ultralytics import YOLO
 
-st.title("Real-Time Object Detection")
+st.title("Real-Time Object Detection and Tracking")
 
 model = YOLO("yolov8n.pt")
 
@@ -16,13 +16,16 @@ while run:
     success, frame = camera.read()
 
     if not success:
-        st.write("Camera not working")
+        st.write("Failed to access camera")
         break
 
     results = model(frame)
 
     annotated_frame = results[0].plot()
 
-    frame_window.image(annotated_frame, channels="BGR")
+    frame_window.image(
+        annotated_frame,
+        channels="BGR"
+    )
 
 camera.release()
